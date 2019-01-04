@@ -2,7 +2,6 @@ package main
 
 import (
 	"io/ioutil"
-	"log"
 	"net/http"
 
 	"github.com/go-yaml/yaml"
@@ -18,29 +17,24 @@ func persistMetadata(w http.ResponseWriter, r *http.Request) {
 	m := metadata{}
 
 	bs, err := ioutil.ReadAll(r.Body)
-	defer r.Body.Close()
 
 	if err != nil {
-		msg := "error parsing request body"
-
-		log.Println(msg, err)
-		http.Error(w, msg, 500)
+		logger.Printf("Error reading request body: %v", err)
+		http.Error(w, "error reading body", http.StatusBadRequest)
 
 		return
 	}
 
 	if err = yaml.Unmarshal(bs, &m); err != nil {
-		msg := "error parsing yaml"
-
-		log.Println(msg, err)
-		http.Error(w, msg, 500)
+		logger.Printf("error parsing yaml: %v", err)
+		http.Error(w, "error parsing yaml", http.StatusBadRequest)
 
 		return
 	}
 
-	log.Printf("successful yaml parse: %+v\n", m)
+	logger.Printf("successful yaml parse: %+v\n", m)
 }
 
 func searchMetadata(w http.ResponseWriter, r *http.Request) {
-	log.Println("success")
+	logger.Println("success")
 }

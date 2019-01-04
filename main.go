@@ -5,23 +5,28 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/go-chi/chi"
 )
 
-var (
-	port string
-)
+var logger = log.New(os.Stdout, "http: ", log.LstdFlags)
 
-func init() {
-	port = os.Getenv("PORT")
+func main() {
+	port := os.Getenv("PORT")
 	if port == "" {
 		port = ":8080"
 	}
-}
 
-func main() {
 	r := chi.NewRouter()
+
+	srv := &http.Server{
+		Addr:         port,
+		WriteTimeout: time.Second * 15,
+		ReadTimeout:  time.Second * 15,
+		IdleTimeout:  time.Second * 60,
+		Handler:      r,
+	}
 
 	r.Route("/v1/metadata", func(r chi.Router) {
 		r.Post("/", persistMetadata)
@@ -29,5 +34,5 @@ func main() {
 	})
 
 	fmt.Println("Server listening on port", port)
-	log.Fatal(http.ListenAndServe(port, r))
+	logger.Fatal(srv.ListenAndServe())
 }
