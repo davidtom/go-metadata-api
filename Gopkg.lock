@@ -10,6 +10,14 @@
   version = "v3.3.3"
 
 [[projects]]
+  branch = "v2"
+  digest = "1:b6539350da50de0d3c9b83ae587c06b89be9cb5750443bdd887f1c4077f57776"
+  name = "github.com/go-validator/validator"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "135c24b11c19e52befcae2ec3fca5d9b78c4e98e"
+
+[[projects]]
   digest = "1:4d2e5a73dc1500038e504a8d78b986630e3626dc027bc030ba5c75da257cdb96"
   name = "github.com/go-yaml/yaml"
   packages = ["."]
@@ -22,6 +30,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/go-chi/chi",
+    "github.com/go-validator/validator",
     "github.com/go-yaml/yaml",
   ]
   solver-name = "gps-cdcl"

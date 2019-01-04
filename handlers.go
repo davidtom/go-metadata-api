@@ -1,16 +1,30 @@
 package main
 
 import (
+	"errors"
 	"io/ioutil"
 	"net/http"
+	"regexp"
 
+	"github.com/go-validator/validator"
 	"github.com/go-yaml/yaml"
 )
 
 type metadata struct {
-	Title   string
-	Version string
+	Title       string `yaml:"title" validate:"nonzero"`
+	Version     string `yaml:"version" validate:"nonzero"`
+	Maintainers []struct {
+		Name  string `yaml:"name" validate:"nonzero"`
+		Email string `yaml:"email" validate:"nonzero"`
+	} `yaml:"maintainers"`
+	Company     string `yaml:"company" validate:"nonzero"`
+	Website     string `yaml:"website" validate:"nonzero"`
+	Source      string `yaml:"source" validate:"nonzero"`
+	License     string `yaml:"license" validate:"nonzero"`
+	Description string `yaml:"description"`
 }
+
+var emailRegexp = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 
 // TODO: implement a request logger
 func persistMetadata(w http.ResponseWriter, r *http.Request) {
@@ -32,7 +46,32 @@ func persistMetadata(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logger.Printf("successful yaml parse: %+v\n", m)
+	if err = validateMetadata(&m); err != nil {
+		logger.Printf("invalid yaml: %v", err)
+		rejectionReason := "invalid yaml " + err.Error()
+		http.Error(w, rejectionReason, http.StatusBadRequest)
+
+		return
+	}
+
+	logger.Printf("successful yaml upload: %+v\n", m)
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func validateMetadata(m *metadata) error {
+	if err := validator.Validate(m); err != nil {
+		return err
+	}
+
+	for _, maintainer := range m.Maintainers {
+		// validate email syntax only in the interest of speed
+		if validEmail := emailRegexp.MatchString(maintainer.Email); validEmail != true {
+			return errors.New("invalid email")
+		}
+	}
+
+	return nil
 }
 
 func searchMetadata(w http.ResponseWriter, r *http.Request) {
