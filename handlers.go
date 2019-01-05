@@ -27,7 +27,9 @@ type metadata struct {
 var emailRegexp = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 
 // TODO: implement a request logger
-func persistMetadata(w http.ResponseWriter, r *http.Request) {
+
+// Handlers
+func persistMetadataHandler(w http.ResponseWriter, r *http.Request) {
 	m := metadata{}
 
 	bs, err := ioutil.ReadAll(r.Body)
@@ -60,6 +62,22 @@ func persistMetadata(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+func searchMetadataHandler(w http.ResponseWriter, r *http.Request) {
+	q := r.URL.Query()
+	logger.Printf("query: %+v", q)
+
+	results := storage.get()
+
+	w.Header().Set("Content-Type", "application/x-yaml")
+	e := yaml.NewEncoder(w)
+	defer e.Close()
+
+	for _, yaml := range results {
+		e.Encode(yaml)
+	}
+}
+
+// Helper Methods
 func validateMetadata(m *metadata) error {
 	if err := validator.Validate(m); err != nil {
 		return err
@@ -73,19 +91,4 @@ func validateMetadata(m *metadata) error {
 	}
 
 	return nil
-}
-
-func searchMetadata(w http.ResponseWriter, r *http.Request) {
-	q := r.URL.Query()
-	logger.Printf("query: %+v", q)
-
-	results := storage.get()
-
-	w.Header().Set("Content-Type", "application/x-yaml")
-	e := yaml.NewEncoder(w)
-	defer e.Close()
-
-	for _, yaml := range results {
-		e.Encode(yaml)
-	}
 }

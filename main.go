@@ -29,8 +29,8 @@ func main() {
 	}
 
 	r.Route("/v1/metadata", func(r chi.Router) {
-		r.Post("/", persistMetadata)
-		r.Get("/search", searchMetadata)
+		r.Post("/", persistMetadataHandler)
+		r.Get("/search", searchMetadataHandler)
 	})
 
 	fmt.Println("Server listening on port", port)
