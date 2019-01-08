@@ -6,20 +6,12 @@ import (
 	"github.com/fatih/structs"
 )
 
-// TODO: clean up the ordering of these or split out into multiple files
-
 // MemStore represents the data structure where metadata will be stored
 type MemStore map[string]*metadata
 
 // Storage provides methods to read and write to a store (type MemStore)
 type Storage struct {
 	store MemStore
-}
-
-// toMap converts a value of type metadata to type map[string]interface{} with the same nesting structure
-// this facilitates searching each piece of metadata by making it possible to index it by value
-func (md metadata) toMap() map[string]interface{} {
-	return structs.Map(md)
 }
 
 // storage is used throughout application to persist metadata
@@ -48,7 +40,7 @@ func searchMetadata(ms MemStore, q map[string]string) []*metadata {
 
 		for k, v := range q {
 			keys := strings.Split(k, ",")
-			contains = containsNestedData(m, keys, v)
+			contains = metadataContainsValue(m, keys, v)
 
 			if !contains {
 				break
@@ -69,7 +61,7 @@ func searchMetadata(ms MemStore, q map[string]string) []*metadata {
  keys that reside in lists, such as Maintainer, can be specified independently of the index of the target data. For example,
  to access any maintainers email, the path would simply be: ["maintainers", "email"]
 */
-func containsNestedData(m interface{}, path []string, value string) bool {
+func metadataContainsValue(m interface{}, path []string, value string) bool {
 	if len(path) == 0 {
 		return false
 	}
@@ -80,26 +72,31 @@ func containsNestedData(m interface{}, path []string, value string) bool {
 		// here we know its a map, but don't know the type of value, so we must check before accessing it
 		v := mapData[key]
 
-		stringValue, ok := v.(string)
+		// we will handle both strings and slice of strings here, so create a variable to use in both cases
+		tempSlice := []string{}
 
-		// if value is a string, see if it contains the value we're searching for
-		if ok {
-			return strings.Contains(strings.ToLower(stringValue), strings.ToLower(value))
+		if sliceValue, isSliceString := v.([]string); isSliceString {
+			tempSlice = sliceValue
+		} else if stringValue, isString := v.(string); isString {
+			tempSlice = []string{stringValue}
 		}
 
-		// if value is anything besides a string, pass it to another function call with the next key in the path
-		// TODO: this works for metadata structure specified in instructions (plus nested maps like Spec.Replicas), but breaks when a key points to an
-		// array of strings ie:
-		// fruits:
-		//   - apple
-		//   - orange
-		return containsNestedData(v, path[1:], value)
+		for _, val := range tempSlice {
+			match := strings.Contains(strings.ToLower(val), strings.ToLower(value))
+
+			if match {
+				return true
+			}
+		}
+
+		// if value is anything besides a string or slice of string, pass it to another function call with the next key in the path
+		return metadataContainsValue(v, path[1:], value)
 	}
 
+	// if m is not a map, it must be a slice; pass each value in it back to this function with the current key and check return values
 	if sliceData, isSlice := m.([]interface{}); isSlice {
-		// since we know m is a slice, iterate over each element and check if it contains the current key and desired value
 		for _, elem := range sliceData {
-			match := containsNestedData(elem, []string{key}, value)
+			match := metadataContainsValue(elem, []string{key}, value)
 
 			if match {
 				return true
@@ -108,4 +105,10 @@ func containsNestedData(m interface{}, path []string, value string) bool {
 	}
 
 	return false
+}
+
+// toMap converts a value of type metadata to type map[string]interface{} with the same nesting structure
+// this facilitates searching each piece of metadata by making it possible to index it by value
+func (md metadata) toMap() map[string]interface{} {
+	return structs.Map(md)
 }
