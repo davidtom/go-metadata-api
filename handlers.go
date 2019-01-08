@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"regexp"
+	"strings"
 
 	"github.com/go-validator/validator"
 	"github.com/go-yaml/yaml"
@@ -23,19 +24,27 @@ type metadata struct {
 	License     string `yaml:"license" validate:"nonzero"`
 	Description string `yaml:"description"`
 	// TODO: if time, build search so that other metadata fields can be searched too:
+	// TODO: make sure that if they arent specified, they don't show up
 	// TODO: remove this before submitting!
-	Fruits []string `yaml:"fruits"`
-	Spec   struct {
-		Replicas string `yaml:"replicas"`
-	} `yaml:"spec"`
+	// eg "os" : [ "darwin", "linux" ]
+	os       []string `yaml:"os"`
+	Metadata struct {
+		label string `yaml:"label"`
+	} `yaml:"metadata"`
 }
 
 var emailRegexp = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 
-// TODO: implement a request logger
+// TODO: create a basic response object for search endpoint?
 
 /**~ Handlers ~**/
 func persistMetadataHandler(w http.ResponseWriter, r *http.Request) {
+	if !hasContentType(r, "application/x-yaml") {
+		http.Error(w, "content must be type application/x-yaml", http.StatusUnsupportedMediaType)
+
+		return
+	}
+
 	m := metadata{}
 
 	bs, err := ioutil.ReadAll(r.Body)
@@ -69,7 +78,6 @@ func persistMetadataHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func searchMetadataHandler(w http.ResponseWriter, r *http.Request) {
-	// TODO: docs should say you cant repeat a query string (only last one will count since it will be overwritten - this is not default behaviour)
 	q := getQueryFromRequest(r)
 
 	results := storage.get(q)
@@ -84,6 +92,16 @@ func searchMetadataHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 /**~ Helper Methods ~**/
+
+func hasContentType(r *http.Request, mimetype string) bool {
+	contentType := r.Header.Get("Content-type")
+
+	if strings.ToLower(contentType) == strings.ToLower(mimetype) {
+		return true
+	}
+
+	return false
+}
 
 // validateMetadata validates that the required fields are present, of the correct type, and that some data is formatted correctly (ie email)
 func validateMetadata(m *metadata) error {
