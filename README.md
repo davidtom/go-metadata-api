@@ -12,6 +12,11 @@ Start the server:
 make run
 ```
 
+A port may also be specified if needed:
+```
+make run PORT=:9000
+```
+
 #### Upload Metadata
 Upload YAML metadata by making a POST request to `http://localhost:8080/v1/metadata` with a `Content-Type: application/x-yaml` header.
 
