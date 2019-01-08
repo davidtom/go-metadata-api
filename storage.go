@@ -20,6 +20,7 @@ var storage = Storage{
 }
 
 /**~ Storage Methods ~**/
+
 func (s Storage) set(k string, v *metadata) {
 	s.store[k] = v
 }
@@ -29,6 +30,8 @@ func (s Storage) get(q map[string]string) []*metadata {
 }
 
 /**~ Helper Methods ~**/
+
+// searchMetadata searches all metadata in a MemStore for any that match all query parameters supplied
 func searchMetadata(ms MemStore, q map[string]string) []*metadata {
 	results := []*metadata{}
 

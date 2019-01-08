@@ -31,9 +31,8 @@ type metadata struct {
 
 var emailRegexp = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 
-// TODO: create a basic response object for search endpoint?
-
 /**~ Handlers ~**/
+
 func persistMetadataHandler(w http.ResponseWriter, r *http.Request) {
 	if !hasContentType(r, "application/x-yaml") {
 		http.Error(w, "content must be type application/x-yaml", http.StatusUnsupportedMediaType)
