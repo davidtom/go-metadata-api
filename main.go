@@ -8,9 +8,10 @@ import (
 	"time"
 
 	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 )
 
-var logger = log.New(os.Stdout, "http: ", log.LstdFlags)
+var logger = log.New(os.Stdout, "", log.LstdFlags)
 
 func main() {
 	port := os.Getenv("PORT")
@@ -19,6 +20,8 @@ func main() {
 	}
 
 	r := chi.NewRouter()
+
+	r.Use(middleware.Logger)
 
 	srv := &http.Server{
 		Addr:         port,
