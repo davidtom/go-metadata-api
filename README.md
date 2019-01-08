@@ -38,11 +38,6 @@ company: Random Inc.
 website: https://website.com
 source: https://github.com/random/repo
 license: Apache-2.0
-os:
- - linux
- - darwin
-metadata:
-  label: myapp
 description: |
  ### Interesting Title
  Some application content, and description' \
