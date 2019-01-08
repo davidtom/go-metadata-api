@@ -22,13 +22,19 @@ type metadata struct {
 	Source      string `yaml:"source" validate:"nonzero"`
 	License     string `yaml:"license" validate:"nonzero"`
 	Description string `yaml:"description"`
+	// TODO: if time, build search so that other metadata fields can be searched too:
+	// TODO: remove this before submitting!
+	Fruits []string `yaml:"fruits"`
+	Spec   struct {
+		Replicas string `yaml:"replicas"`
+	} `yaml:"spec"`
 }
 
 var emailRegexp = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 
 // TODO: implement a request logger
 
-// Handlers
+/**~ Handlers ~**/
 func persistMetadataHandler(w http.ResponseWriter, r *http.Request) {
 	m := metadata{}
 
@@ -63,10 +69,10 @@ func persistMetadataHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func searchMetadataHandler(w http.ResponseWriter, r *http.Request) {
-	q := r.URL.Query()
-	logger.Printf("query: %+v", q)
+	// TODO: docs should say you cant repeat a query string (only last one will count since it will be overwritten - this is not default behaviour)
+	q := getQueryFromRequest(r)
 
-	results := storage.get()
+	results := storage.get(q)
 
 	w.Header().Set("Content-Type", "application/x-yaml")
 	e := yaml.NewEncoder(w)
@@ -77,7 +83,9 @@ func searchMetadataHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Helper Methods
+/**~ Helper Methods ~**/
+
+// validateMetadata validates that the required fields are present, of the correct type, and that some data is formatted correctly (ie email)
 func validateMetadata(m *metadata) error {
 	if err := validator.Validate(m); err != nil {
 		return err
@@ -91,4 +99,19 @@ func validateMetadata(m *metadata) error {
 	}
 
 	return nil
+}
+
+// getQueryFromRequest returns a map[string]string from the URL query string
+// TODO: elaborate further on why this is needed over r.URL.Query()?
+func getQueryFromRequest(r *http.Request) map[string]string {
+	q := make(map[string]string)
+	queryValues := r.URL.Query()
+
+	for k, v := range queryValues {
+		value := v[0]
+
+		q[k] = value
+	}
+
+	return q
 }
