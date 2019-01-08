@@ -102,7 +102,6 @@ func validateMetadata(m *metadata) error {
 }
 
 // getQueryFromRequest returns a map[string]string from the URL query string
-// TODO: elaborate further on why this is needed over r.URL.Query()?
 func getQueryFromRequest(r *http.Request) map[string]string {
 	q := make(map[string]string)
 	queryValues := r.URL.Query()

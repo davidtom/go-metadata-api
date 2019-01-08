@@ -84,7 +84,7 @@ func containsNestedData(m interface{}, path []string, value string) bool {
 
 		// if value is a string, see if it contains the value we're searching for
 		if ok {
-			return strings.Contains(stringValue, value)
+			return strings.Contains(strings.ToLower(stringValue), strings.ToLower(value))
 		}
 
 		// if value is anything besides a string, pass it to another function call with the next key in the path
