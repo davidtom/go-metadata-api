@@ -23,10 +23,10 @@ type metadata struct {
 	Source      string   `yaml:"source" validate:"nonzero"`
 	License     string   `yaml:"license" validate:"nonzero"`
 	Description string   `yaml:"description" validate:"nonzero"`
-	Os          []string `yaml:"os"`
+	Os          []string `yaml:"os,omitempty"`
 	Metadata    struct {
-		Label string `yaml:"label"`
-	} `yaml:"metadata"`
+		Label string `yaml:"label,omitempty"`
+	} `yaml:"metadata,omitempty"`
 }
 
 var emailRegexp = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
