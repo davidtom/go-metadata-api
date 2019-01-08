@@ -26,7 +26,7 @@ curl --header "Content-Type: application/x-yaml" \
   --request POST \
   --data \
 'title: Valid App 1
-version: 0.0.2
+version: 0.0.1
 maintainers:
 - name: firstmaintainer app1
   email: firstmaintainer@hotmail.com
@@ -74,9 +74,9 @@ description: |
 #### Search Metadata
 Once stored, metadata can be searched and retrieved by making a GET request to `http://localhost:8080/v1/metadata/search` and specifying search terms as query parameters.
 
-For example, to search for metadata with `version == 0.0.2`, make the following request:
+For example, to search for metadata with `version == 0.0.1`, make the following request:
 ```
-curl http://localhost:8080/v1/metadata/search?version=0.0.2
+curl http://localhost:8080/v1/metadata/search?version=0.0.1
 ```
 
 In order to search nested data, simply specify the order of keys to access in the field of the query string. Data nested inside arrays is searched independent of index. For example, to search for metadata with a maintainer email of secondmaintainer@gmail.com, the reqest/query parameters are as follows:
@@ -87,7 +87,7 @@ curl http://localhost:8080/v1/metadata/search?maintainers,email=secondmaintainer
 **NOTE:** query parameters cannot be duplicated in the requests - and only the last instance of a query parameter will be used
 
 ## Bonus
-I had so much fun trying to implement search, that I wanted to try to cover additional types of nested data aside from just a list of dictionaries (ie maintainers). So, I added two additional - but optional - fields to the metadata:
+I had so much fun trying to implement search that I wanted to try to cover additional types of nested data aside from just a list of dictionaries (ie maintainers). So, I added two additional - but optional - fields to the metadata:
 ```yaml
 metadata:
   label: mylabel
