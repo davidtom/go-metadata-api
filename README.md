@@ -3,7 +3,9 @@ Golang RESTful API server for storing and searching application metadata express
 
 ## Installation
 ```
-go get "github.com/davidtom/go-metadata-api"
+go get github.com/davidtom/go-metadata-api
+
+cd $(go env GOPATH)/src/github.com/davidtom/go-metadata-api
 ```
 
 ## Usage
