@@ -18,17 +18,13 @@ type metadata struct {
 		Name  string `yaml:"name" validate:"nonzero"`
 		Email string `yaml:"email" validate:"nonzero"`
 	} `yaml:"maintainers"`
-	Company     string `yaml:"company" validate:"nonzero"`
-	Website     string `yaml:"website" validate:"nonzero"`
-	Source      string `yaml:"source" validate:"nonzero"`
-	License     string `yaml:"license" validate:"nonzero"`
-	Description string `yaml:"description"`
-	// TODO: if time, build search so that other metadata fields can be searched too:
-	// TODO: make sure that if they arent specified, they don't show up
-	// TODO: remove this before submitting!
-	// eg "os" : [ "darwin", "linux" ]
-	Os       []string `yaml:"os"`
-	Metadata struct {
+	Company     string   `yaml:"company" validate:"nonzero"`
+	Website     string   `yaml:"website" validate:"nonzero"`
+	Source      string   `yaml:"source" validate:"nonzero"`
+	License     string   `yaml:"license" validate:"nonzero"`
+	Description string   `yaml:"description" validate:"nonzero"`
+	Os          []string `yaml:"os"`
+	Metadata    struct {
 		Label string `yaml:"label"`
 	} `yaml:"metadata"`
 }
