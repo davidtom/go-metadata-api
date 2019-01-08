@@ -27,9 +27,9 @@ type metadata struct {
 	// TODO: make sure that if they arent specified, they don't show up
 	// TODO: remove this before submitting!
 	// eg "os" : [ "darwin", "linux" ]
-	os       []string `yaml:"os"`
+	Os       []string `yaml:"os"`
 	Metadata struct {
-		label string `yaml:"label"`
+		Label string `yaml:"label"`
 	} `yaml:"metadata"`
 }
 
@@ -71,7 +71,8 @@ func persistMetadataHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	storage.set(m.Title, &m)
+	storageKey := m.Title + m.Version
+	storage.set(storageKey, &m)
 	logger.Printf("successful yaml upload: %+v\n", m)
 
 	w.WriteHeader(http.StatusNoContent)
@@ -93,6 +94,7 @@ func searchMetadataHandler(w http.ResponseWriter, r *http.Request) {
 
 /**~ Helper Methods ~**/
 
+// hasContentType returns true if a request has the specified content-type in its header, false otherwise
 func hasContentType(r *http.Request, mimetype string) bool {
 	contentType := r.Header.Get("Content-type")
 
